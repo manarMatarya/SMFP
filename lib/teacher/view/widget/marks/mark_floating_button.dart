@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smfp/teacher/logic/teacher_controller_basic.dart';
+import 'package:smfp/teacher/view/screens/add_notification.dart';
 import 'package:smfp/utiles/theme.dart';
 
 Widget markFloatingButton() {
@@ -35,7 +36,7 @@ Widget markFloatingButton() {
                 ),
               ),
             ),
-            onPressed: () {
+            onPressed: () async {
               if (fromKey.currentState!.validate()) {
                 for (int i = 0; i < _controllers.length; i++) {
                   controller.addExamResult(
@@ -43,6 +44,15 @@ Widget markFloatingButton() {
                     studentId: controller.students[i].id,
                     total: totalController.text,
                   );
+                  List<String>? tokents = await controller.getToken();
+
+                  tokents.forEach((element) {
+                    PushNotification.instance.sendNotification(
+                      title: 'تم اضافة درجة اختبار',
+                      body: _controllers[i].text,
+                      to: element,
+                    );
+                  });
                   clearText();
                 }
               } else {

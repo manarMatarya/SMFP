@@ -121,6 +121,7 @@ class TeacherControllerBasic extends GetxController {
       }
     });
   }
+
   Future<List<String>> getToken() async {
     List<String> tokens = [];
     try {
@@ -129,11 +130,10 @@ class TeacherControllerBasic extends GetxController {
           .where("role", isEqualTo: "parent")
           .get()
           .then((value) async {
-            value.docs.forEach((doc) {
-              tokens.add(doc["token"]);
-            });
-            print("ggggg ${tokens.length}");
-            return tokens;
+        for (var doc in value.docs) {
+          tokens.add(doc["token"]);
+        }
+        return tokens;
       });
     } catch (e) {
       // ignore: avoid_print

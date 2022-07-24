@@ -56,6 +56,11 @@ class TransferStudentsRequests extends StatelessWidget {
                                           name: controller.studentNames[index],
                                           reason: controller
                                               .transfers[index].reason,
+                                          id: controller.transfers[index].name,
+                                          currentSchool: controller
+                                              .transfers[index].currentSchool,
+                                          toScool: controller
+                                              .transfers[index].toSchool,
                                         );
                                       },
                                       itemCount: controller.transfers.length,
@@ -68,47 +73,6 @@ class TransferStudentsRequests extends StatelessWidget {
                                     );
                         }),
                       ),
-                      // GetX<AdminController>(
-                      //   builder: ((controller) {
-
-                      //     return ListView.separated(
-                      //       shrinkWrap: true,
-                      //       physics: const NeverScrollableScrollPhysics(),
-                      //       itemBuilder: (context, index) {
-                      //         return controller.loadingTransfer.value
-                      //             ? Shimmer.fromColors(
-                      //                 baseColor: const Color.fromARGB(
-                      //                     255, 104, 103, 103),
-                      //                 highlightColor: theme.mainColor,
-                      //                 child: ListView.separated(
-                      //                   shrinkWrap: true,
-                      //                   physics:
-                      //                       const NeverScrollableScrollPhysics(),
-                      //                   itemCount: 8,
-                      //                   itemBuilder: (context, index) =>
-                      //                       const HomeCardSkelton(),
-                      //                   separatorBuilder: (context, index) =>
-                      //                       const SizedBox(height: 16),
-                      //                 ),
-                      //               )
-                      //             : controller.transfers.isEmpty
-                      //                 ? const NoData()
-                      //                 : buildItem(
-                      //                     name: controller.studentNames[index],
-                      //                     reason: controller
-                      //                         .transfers[index].reason,
-                      //                   );
-                      //       },
-                      //       itemCount: controller.transfers.length,
-                      //       separatorBuilder:
-                      //           (BuildContext context, int index) {
-                      //         return const SizedBox(
-                      //           height: 10,
-                      //         );
-                      //       },
-                      //     );
-                      //   }),
-                      // ),
                     ],
                   ),
                 ),
@@ -120,7 +84,12 @@ class TransferStudentsRequests extends StatelessWidget {
     );
   }
 
-  Widget buildItem({required String name, required String reason}) {
+  Widget buildItem(
+      {required String name,
+      required String reason,
+      required String id,
+      required String currentSchool,
+      required String toScool}) {
     return Card(
       color: Colors.primaries[Random().nextInt(Colors.primaries.length)][100],
       //elevation: 2,
@@ -135,7 +104,7 @@ class TransferStudentsRequests extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-               'الطالب : '+ name,
+                'الطالب : ' + name,
                 style: const TextStyle(
                   overflow: TextOverflow.visible,
                   color: Colors.black,
@@ -144,7 +113,7 @@ class TransferStudentsRequests extends StatelessWidget {
                 ),
               ),
               Text(
-              'دواعي النقل : ' + reason,
+                'دواعي النقل : ' + reason,
                 style: const TextStyle(
                   overflow: TextOverflow.visible,
                   color: Colors.black,
@@ -152,6 +121,32 @@ class TransferStudentsRequests extends StatelessWidget {
                   fontWeight: FontWeight.normal,
                 ),
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      child: const Text('قبول'),
+                      onPressed: () {
+                        controller.currentSchoolAccept(
+                            id, currentSchool, toScool);
+                      },
+                    ),
+                  ),
+                  const Text(
+                    '|',
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                  Expanded(
+                    child: TextButton(
+                      child: const Text('رفض'),
+                      onPressed: () {
+                        controller.deletEDocument(id: id);
+                      },
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),

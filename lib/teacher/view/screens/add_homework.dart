@@ -53,8 +53,11 @@ class _AddHomeworkState extends State<AddHomework> {
     }
   }
 
+  bool keyboardOpen = false;
+
   @override
   Widget build(BuildContext context) {
+    keyboardOpen = MediaQuery.of(context).viewInsets.bottom != 0;
     return SafeArea(
       child: Scaffold(
         appBar: myAppBar(),
@@ -139,29 +142,34 @@ class _AddHomeworkState extends State<AddHomework> {
             ),
           ]),
         ),
-        floatingActionButton: MainButton(
-          text: 'اضافة الواجب',
-          pressed: () async {
-            if (formKey.currentState!.validate()) {
-              controller.addHomework(
-                title: titleController.text,
-                content: contentController.text,
-                date: dateController.text,
-                classId: controller.currentClass.id,
-              );
-              List<String>? tokents = await controller.getToken();
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: keyboardOpen
+            ? const SizedBox()
+            : Container(
+                margin: const EdgeInsets.only(left: 20),
+                child: MainButton(
+                  text: 'اضافة الواجب',
+                  pressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      controller.addHomework(
+                        title: titleController.text,
+                        content: contentController.text,
+                        date: dateController.text,
+                        classId: controller.currentClass.id,
+                      );
+                      List<String>? tokents = await controller.getToken();
 
-              tokents.forEach((element) {
-                print("ddddd ${element}");
-                PushNotification.instance.sendNotification(
-                    title: "${titleController.text}",
-                    body: "${contentController.text}",
-                    to: element);
-                print("fffffffffffffffff");
-              });
-            }
-          },
-        ),
+                      tokents.forEach((element) {
+                        PushNotification.instance.sendNotification(
+                          title: "تم اضافة واجب جديد",
+                          body: contentController.text,
+                          to: element,
+                        );
+                      });
+                    }
+                  },
+                ),
+              ),
       ),
     );
   }

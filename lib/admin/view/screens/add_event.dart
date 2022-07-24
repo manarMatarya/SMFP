@@ -1,19 +1,18 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
 import 'package:smfp/admin/logic/controller/admin_controller.dart';
+import 'package:smfp/teacher/view/screens/add_notification.dart';
 import 'package:smfp/utiles/theme.dart';
 import 'package:smfp/view/widgets/custom_button.dart';
 import 'package:smfp/view/widgets/text_utils.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class AddEvents extends StatefulWidget {
-  AddEvents({Key? key}) : super(key: key);
+  const AddEvents({Key? key}) : super(key: key);
 
   @override
   State<AddEvents> createState() => _AddEventsState();
@@ -217,9 +216,18 @@ class _AddEventsState extends State<AddEvents> {
             : Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: MainButton(
-                  pressed: () {
+                  pressed: () async {
                     if (formKey.currentState!.validate() && _photo != null) {
                       uploadFiles();
+                      List<String>? tokents = await controller.getToken();
+
+                    tokents.forEach((element) {
+                      PushNotification.instance.sendNotification(
+                        title: "حدث جديد في المدرسة",
+                        body: titleController.text,
+                        to: element,
+                      );
+                    });
                     } else {
                       Get.snackbar(
                         'خطأ',

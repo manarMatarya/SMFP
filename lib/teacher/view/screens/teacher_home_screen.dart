@@ -92,7 +92,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         ),
                         InkWell(
                           onTap: () {
-                            Get.to(AddHomework());
+                            Get.to(const AddHomework());
                           },
                           child: buildTeacherCard(
                             image: 'assets/images/homework.png',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smfp/admin/logic/controller/admin_controller.dart';
+import 'package:smfp/teacher/view/screens/add_notification.dart';
 import 'package:smfp/utiles/theme.dart';
 import 'package:smfp/view/widgets/custom_button.dart';
 import 'package:smfp/view/widgets/text_utils.dart';
@@ -39,7 +40,7 @@ class _AddAttendanceState extends State<AddAttendance> {
   final formKey = GlobalKey<FormState>();
   var currentClass;
 
-  List<TextEditingController> _reasonControllers = [];
+  final List<TextEditingController> _reasonControllers = [];
 
   bool keyboardOpen = false;
 
@@ -68,10 +69,8 @@ class _AddAttendanceState extends State<AddAttendance> {
                     key: formKey,
                     child: Column(
                       children: [
-                         TextUtils(
-                       
+                        TextUtils(
                           text: "حضور وغياب الطلاب",
-                         
                         ),
                         const SizedBox(
                           height: 20,
@@ -140,7 +139,8 @@ class _AddAttendanceState extends State<AddAttendance> {
                                       currentClass = value;
                                       controller.students.value = [];
                                       controller.getStudents(
-                                          classId: currentClass.id);
+                                        classId: currentClass.id,
+                                      );
                                     });
                                   },
                                 );
@@ -248,11 +248,11 @@ class _AddAttendanceState extends State<AddAttendance> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: keyboardOpen
-            ? SizedBox()
+            ? const SizedBox()
             : Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: MainButton(
-                  pressed: () {
+                  pressed: () async {
                     for (int i = 0; i < _reasonControllers.length; i++) {
                       if (status[i] == 'معذور' || status[i] == 'بدون عذر') {
                         controller.addAttendance(
@@ -261,6 +261,15 @@ class _AddAttendanceState extends State<AddAttendance> {
                           date: dateController.text,
                           status: status[i],
                         );
+                        List<String>? tokents = await controller.getToken();
+
+                        tokents.forEach((element) {
+                          PushNotification.instance.sendNotification(
+                            title: "تنبيه غياب الطالب",
+                            body: status[i],
+                            to: element,
+                          );
+                        });
                       }
                     }
                   },

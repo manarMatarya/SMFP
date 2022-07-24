@@ -9,6 +9,8 @@ import 'package:smfp/model/student_model.dart';
 import 'package:smfp/model/subject_model.dart';
 import 'package:smfp/model/transfer_model.dart';
 import 'package:smfp/model/user_model.dart';
+import 'package:smfp/shared/db_shared.dart';
+import 'package:smfp/teacher/view/screens/add_notification.dart';
 import 'package:smfp/utiles/theme.dart';
 
 class AdminController extends GetxController {
@@ -280,6 +282,23 @@ class AdminController extends GetxController {
     try {
       await _transferRef
           .where('current_school_id', isEqualTo: currentAdmin.value.id)
+          .where('first_accept', isEqualTo: 'no')
+          .get()
+          .then((value) async {
+        for (int i = 0; i < value.docs.length; i++) {
+          await _studentRef
+              .where('id', isEqualTo: value.docs[i]['name'])
+              .get()
+              .then((value) {
+            studentNames.add(value.docs[0]['name']);
+          });
+          transfers.add(TransferModel.fromJson(value.docs[i].data()));
+        }
+      });
+
+      await _transferRef
+          .where('to_school_id', isEqualTo: currentAdmin.value.id)
+          .where('second_accept', isEqualTo: 'no')
           .get()
           .then((value) async {
         for (int i = 0; i < value.docs.length; i++) {
@@ -295,12 +314,105 @@ class AdminController extends GetxController {
       Future.delayed(const Duration(seconds: 2), () {
         loadingTransfer.value = false;
       });
-      print('################');
-      print(transfers[0].reason);
-      print(studentNames[0]);
     } catch (e) {
       // ignore: avoid_print
       print(e.toString());
     }
+  }
+
+  currentSchoolAccept(String id, current, to) async {
+    if (currentAdmin.value.id == current) {
+      await _transferRef
+          .doc(id)
+          .update({'first_accept': 'yes'}).then((value) async {
+        Get.snackbar(
+          'تم!',
+          'تم الموافقة على الطلب',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: theme.mainColor,
+          colorText: Colors.white,
+        );
+        List<String>? tokents = await getToken();
+
+        tokents.forEach((element) {
+          PushNotification.instance.sendNotification(
+            title: 'تم الموافقة ',
+            body: 'وافقت مدرسة ' +
+                currentAdmin.value.schoolName +
+                ' على طلب النقل',
+            to: element,
+          );
+        });
+      });
+    } else if (currentAdmin.value.id == to) {
+      await _transferRef
+          .doc(id)
+          .update({'second_accept': 'yes'}).then((value) async {
+        await _studentRef
+            .doc(id)
+            .update({'school_id': currentAdmin.value.id}).then((value) async {
+          Get.snackbar(
+            'تم!',
+            'تم الموافقة على الطلب',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: theme.mainColor,
+            colorText: Colors.white,
+          );
+          List<String>? tokents = await getToken();
+
+          tokents.forEach((element) {
+            PushNotification.instance.sendNotification(
+              title: 'تم الموافقة ',
+              body: 'وافقت مدرسة ' +
+                  currentAdmin.value.schoolName +
+                  ' على طلب النقل',
+              to: element,
+            );
+          });
+        });
+      });
+    }
+  }
+
+  deletEDocument({required String id}) async {
+    await _transferRef.doc(id).delete().then((value) async {
+      Get.snackbar(
+        'تم!',
+        'تم رفض الطلب',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: theme.mainColor,
+        colorText: Colors.white,
+      );
+      List<String>? tokents = await getToken();
+
+      tokents.forEach((element) {
+        PushNotification.instance.sendNotification(
+          title: 'تم الرفض ',
+          body: 'رفضت مدرسة ' + currentAdmin.value.schoolName + ' طلب النقل',
+          to: element,
+        );
+      });
+    });
+  }
+
+  Future<List<String>> getToken() async {
+    List<String> tokens = [];
+    try {
+      tokens = await FirebaseFirestore.instance
+          .collection('token')
+          .where("role", isEqualTo: "parent")
+          .get()
+          .then((value) async {
+        for (var doc in value.docs) {
+          tokens.add(doc["token"]);
+        }
+        return tokens;
+      });
+    } catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return [];
+    }
+    return tokens;
   }
 }

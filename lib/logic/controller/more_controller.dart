@@ -67,14 +67,14 @@ class MoreController extends GetxController {
           print(value.docs.length);
           print('####################3');
           print(value.docs[i]['id']);
-      //    print(childrenController.currentStudent.value.school_id);
+          //    print(childrenController.currentStudent.value.school_id);
 
           if (value.docs[i]['id'] !=
               childrenController.currentStudent.value.school_id) {
             schoolsModel.add(SchoolModel.fromJson(value.docs[i].data()));
           } else {
             currentSchool.value = SchoolModel.fromJson(value.docs[i].data());
-        }
+          }
         }
       });
     } catch (e) {
@@ -126,20 +126,24 @@ class MoreController extends GetxController {
       required String average,
       required String reason}) async {
     try {
-      await _transferCollectionRef.add({
+      await _transferCollectionRef
+          .doc(childrenController.currentStudent.value.id)
+          .set({
         'name': childrenController.currentStudent.value.id,
         'current_school_id': childrenController.currentStudent.value.school_id,
         'grade': childrenController.currentStudent.value.grade,
         'average': average,
         'to_school_id': to_school,
-        'reason': reason
+        'reason': reason,
+        'first_accept': 'no',
+        'second_accept': 'no'
       }).then((value) => Get.snackbar(
-            'تم!',
-            'تم تقديم طلب نقل الطالب , ستقوم المدرسة بالاطلاع عليه قريبا',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: theme.mainColor,
-            colorText: Colors.white,
-          ));
+                'تم!',
+                'تم تقديم طلب نقل الطالب , ستقوم المدرسة بالاطلاع عليه قريبا',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: theme.mainColor,
+                colorText: Colors.white,
+              ));
     } catch (e) {
       // ignore: avoid_print
       print(e.toString());

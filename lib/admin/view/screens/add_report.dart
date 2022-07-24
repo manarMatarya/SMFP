@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smfp/admin/logic/controller/admin_controller.dart';
+import 'package:smfp/teacher/view/screens/add_notification.dart';
 import 'package:smfp/utiles/theme.dart';
 import 'package:smfp/view/widgets/custom_button.dart';
 import 'package:smfp/view/widgets/text_utils.dart';
@@ -235,21 +236,24 @@ class _AddReportState extends State<AddReport> {
                             fillColor: Color(0xFFFCA870).withOpacity(0.3),
                             contentPadding: const EdgeInsets.all(20),
                             enabledBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
+                              borderSide: BorderSide(
                                 color: Color(0xFFFCA870).withOpacity(0.3),
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(color: Color(0xFFFCA870).withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: Color(0xFFFCA870).withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             errorBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(color: Color(0xFFFCA870).withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: Color(0xFFFCA870).withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(color: Color(0xFFFCA870).withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: Color(0xFFFCA870).withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -288,7 +292,7 @@ class _AddReportState extends State<AddReport> {
                             fillColor: Color(0xFFFCA870).withOpacity(0.3),
                             contentPadding: const EdgeInsets.all(20),
                             enabledBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
+                              borderSide: BorderSide(
                                 color: Color(0xFFFCA870).withOpacity(0.3),
                               ),
                               borderRadius: BorderRadius.circular(10),
@@ -300,11 +304,13 @@ class _AddReportState extends State<AddReport> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             errorBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(color: Color(0xFFFCA870).withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: Color(0xFFFCA870).withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(color: Color(0xFFFCA870).withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: Color(0xFFFCA870).withOpacity(0.3)),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -326,11 +332,21 @@ class _AddReportState extends State<AddReport> {
             : Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: MainButton(
-                  pressed: () {
+                  pressed: () async {
                     controller.addReport(
-                        content: contentController.text,
-                        title: titleController.text,
-                        studentId: currentStudent.id);
+                      content: contentController.text,
+                      title: titleController.text,
+                      studentId: currentStudent.id,
+                    );
+                    List<String>? tokents = await controller.getToken();
+
+                    tokents.forEach((element) {
+                      PushNotification.instance.sendNotification(
+                        title: "تم اضافة تقرير جديد",
+                        body: titleController.text,
+                        to: element,
+                      );
+                    });
                   },
                   text: 'ارسال',
                 ),
